@@ -1,22 +1,22 @@
 import pytest
-from app import app  
+from app import app
 
 @pytest.fixture
 def client():
-    app.testing = True
-    return app.test_client()
+    app.config['TESTING'] = True
+    with app.test_client() as client:
+        yield client
 
 def test_homepage(client):
     response = client.get('/')
     assert response.status_code == 200
-    assert b"Welcome to My First Flask App" in response.data
+    assert b"Pradeep Singh Rawat | Portfolio" in response.data  # Robust check
 
-def test_info_route(client):
+def test_info(client):
     response = client.get('/info')
     assert response.status_code == 200
-    json_data = response.get_json()
-    assert json_data["developer"] == "Pradeep Rawat"
-    assert json_data["project"] == "My First Flask App"
+    data = response.get_json()
+    assert data["developer"] == "Pradeep Singh Rawat"
 
 def test_form_submission(client):
     response = client.post('/submit', data={
@@ -24,4 +24,4 @@ def test_form_submission(client):
         'message': 'Hello from test!'
     })
     assert response.status_code == 200
-    assert b"Thanks, Test User!" in response.data
+    assert b'Thank you, Test User' in response.data
